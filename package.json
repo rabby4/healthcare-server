@@ -7,10 +7,12 @@
 		"dev": "ts-node-dev --respawn --transpile-only src/server.ts"
 	},
 	"dependencies": {
+		"@prisma/client": "^6.7.0",
 		"cors": "^2.8.5",
 		"express": "^5.1.0"
 	},
 	"devDependencies": {
+		"@types/cors": "^2.8.17",
 		"@types/express": "^5.0.1",
 		"@types/node": "^22.15.3",
 		"prisma": "^6.7.0",
