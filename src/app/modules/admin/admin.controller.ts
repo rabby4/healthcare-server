@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { adminServices } from "./admin.service"
 import pick from "../../../shared/pick"
 import { adminFilterFields, paginationOptions } from "./admin.constant"
+import sendResponse from "../../../shared/sendResponse"
 
 const getAllAdmin = async (req: Request, res: Response) => {
 	const filters = pick(req.query, adminFilterFields)
@@ -9,7 +10,8 @@ const getAllAdmin = async (req: Request, res: Response) => {
 
 	try {
 		const result = await adminServices.getAllAdmin(filters, options)
-		res.status(200).json({
+		sendResponse(res, {
+			statusCode: 200,
 			success: true,
 			message: "All admin fetched successfully!",
 			meta: result.meta,
@@ -29,7 +31,8 @@ const getAdminById = async (req: Request, res: Response) => {
 
 	try {
 		const result = await adminServices.getAdminById(id)
-		res.status(200).json({
+		sendResponse(res, {
+			statusCode: 200,
 			success: true,
 			message: "Admin data fetched by id!",
 			data: result,
@@ -48,7 +51,8 @@ const updateAdminById = async (req: Request, res: Response) => {
 	const data = req.body
 	try {
 		const result = await adminServices.updateAdminById(id, data)
-		res.status(200).json({
+		sendResponse(res, {
+			statusCode: 200,
 			success: true,
 			message: "Admin data updated!",
 			data: result,
@@ -66,7 +70,8 @@ const deleteAdminById = async (req: Request, res: Response) => {
 	const { id } = req.params
 	try {
 		const result = await adminServices.deleteAdminById(id)
-		res.status(200).json({
+		sendResponse(res, {
+			statusCode: 200,
 			success: true,
 			message: "Admin data deleted!",
 			data: result,
@@ -84,7 +89,8 @@ const softDeleteAdminById = async (req: Request, res: Response) => {
 	const { id } = req.params
 	try {
 		const result = await adminServices.softDeleteAdminById(id)
-		res.status(200).json({
+		sendResponse(res, {
+			statusCode: 200,
 			success: true,
 			message: "Admin data deleted!",
 			data: result,

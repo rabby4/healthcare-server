@@ -47,7 +47,7 @@ const getAllAdmin = async (params: any, options: any) => {
 				: { createdAt: "desc" },
 	})
 
-	const total = await prisma.admin.count({
+	const total: number = await prisma.admin.count({
 		where: whereCondition,
 	})
 
