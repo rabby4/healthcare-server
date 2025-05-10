@@ -28,6 +28,11 @@ const getAllAdmin = async (params: any, options: any) => {
 			})),
 		})
 	}
+
+	andCondition.push({
+		isDeleted: false,
+	})
+
 	const whereCondition: Prisma.AdminWhereInput = { AND: andCondition }
 
 	const result = await prisma.admin.findMany({
@@ -56,19 +61,24 @@ const getAllAdmin = async (params: any, options: any) => {
 	}
 }
 
-const getAdminById = async (id: string) => {
+const getAdminById = async (id: string): Promise<Admin | null> => {
 	const result = await prisma.admin.findUnique({
 		where: {
 			id,
+			isDeleted: false,
 		},
 	})
 	return result
 }
 
-const updateAdminById = async (id: string, data: Partial<Admin>) => {
+const updateAdminById = async (
+	id: string,
+	data: Partial<Admin>
+): Promise<Admin> => {
 	await prisma.admin.findUniqueOrThrow({
 		where: {
 			id,
+			isDeleted: false,
 		},
 	})
 
@@ -81,7 +91,7 @@ const updateAdminById = async (id: string, data: Partial<Admin>) => {
 	return result
 }
 
-const deleteAdminById = async (id: string) => {
+const deleteAdminById = async (id: string): Promise<Admin | null> => {
 	await prisma.admin.findUniqueOrThrow({
 		where: {
 			id,
@@ -93,7 +103,7 @@ const deleteAdminById = async (id: string) => {
 				id,
 			},
 		})
-		const deleteUser = await transactionClient.user.delete({
+		await transactionClient.user.delete({
 			where: {
 				email: deleteAdmin.email,
 			},
@@ -103,10 +113,11 @@ const deleteAdminById = async (id: string) => {
 	return result
 }
 
-const softDeleteAdminById = async (id: string) => {
+const softDeleteAdminById = async (id: string): Promise<Admin | null> => {
 	await prisma.admin.findUniqueOrThrow({
 		where: {
 			id,
+			isDeleted: false,
 		},
 	})
 
@@ -119,7 +130,7 @@ const softDeleteAdminById = async (id: string) => {
 				isDeleted: true,
 			},
 		})
-		const userSoftDelete = await transactionClient.user.update({
+		await transactionClient.user.update({
 			where: {
 				email: adminSoftDelete.email,
 			},
