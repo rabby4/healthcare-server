@@ -1,11 +1,11 @@
-import { Request, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 import { adminServices } from "./admin.service"
 import pick from "../../../shared/pick"
 import { adminFilterFields, paginationOptions } from "./admin.constant"
 import sendResponse from "../../../shared/sendResponse"
 import status from "http-status"
 
-const getAllAdmin = async (req: Request, res: Response) => {
+const getAllAdmin = async (req: Request, res: Response, next: NextFunction) => {
 	const filters = pick(req.query, adminFilterFields)
 	const options = pick(req.query, paginationOptions)
 
@@ -19,15 +19,15 @@ const getAllAdmin = async (req: Request, res: Response) => {
 			data: result.data,
 		})
 	} catch (error: any) {
-		res.status(500).json({
-			success: false,
-			message: error.name || "Something want wrong!",
-			error,
-		})
+		next(error)
 	}
 }
 
-const getAdminById = async (req: Request, res: Response) => {
+const getAdminById = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
 	const { id } = req.params
 
 	try {
@@ -39,15 +39,15 @@ const getAdminById = async (req: Request, res: Response) => {
 			data: result,
 		})
 	} catch (error: any) {
-		res.status(500).json({
-			success: false,
-			message: error.name || "Something want wrong!",
-			error,
-		})
+		next(error)
 	}
 }
 
-const updateAdminById = async (req: Request, res: Response) => {
+const updateAdminById = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
 	const { id } = req.params
 	const data = req.body
 	try {
@@ -59,15 +59,15 @@ const updateAdminById = async (req: Request, res: Response) => {
 			data: result,
 		})
 	} catch (error: any) {
-		res.status(500).json({
-			success: false,
-			message: error.name || "Something want wrong!",
-			error,
-		})
+		next(error)
 	}
 }
 
-const deleteAdminById = async (req: Request, res: Response) => {
+const deleteAdminById = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
 	const { id } = req.params
 	try {
 		const result = await adminServices.deleteAdminById(id)
@@ -78,15 +78,15 @@ const deleteAdminById = async (req: Request, res: Response) => {
 			data: result,
 		})
 	} catch (error: any) {
-		res.status(500).json({
-			success: false,
-			message: error.name || "Something want wrong!",
-			error,
-		})
+		next(error)
 	}
 }
 
-const softDeleteAdminById = async (req: Request, res: Response) => {
+const softDeleteAdminById = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
 	const { id } = req.params
 	try {
 		const result = await adminServices.softDeleteAdminById(id)
@@ -97,11 +97,7 @@ const softDeleteAdminById = async (req: Request, res: Response) => {
 			data: result,
 		})
 	} catch (error: any) {
-		res.status(500).json({
-			success: false,
-			message: error.name || "Something want wrong!",
-			error,
-		})
+		next(error)
 	}
 }
 
