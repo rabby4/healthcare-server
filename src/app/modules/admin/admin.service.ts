@@ -1,4 +1,4 @@
-import { Admin, Prisma } from "@prisma/client"
+import { Admin, Prisma, UserStatus } from "@prisma/client"
 import { searchFields } from "./admin.constant"
 import { paginationHelpers } from "../../../helpers/paginationHelpers"
 import prisma from "../../../shared/prisma"
@@ -66,6 +66,12 @@ const getAdminById = async (id: string) => {
 }
 
 const updateAdminById = async (id: string, data: Partial<Admin>) => {
+	await prisma.admin.findUniqueOrThrow({
+		where: {
+			id,
+		},
+	})
+
 	const result = await prisma.admin.update({
 		where: {
 			id,
@@ -75,8 +81,61 @@ const updateAdminById = async (id: string, data: Partial<Admin>) => {
 	return result
 }
 
+const deleteAdminById = async (id: string) => {
+	await prisma.admin.findUniqueOrThrow({
+		where: {
+			id,
+		},
+	})
+	const result = await prisma.$transaction(async (transactionClient) => {
+		const deleteAdmin = await transactionClient.admin.delete({
+			where: {
+				id,
+			},
+		})
+		const deleteUser = await transactionClient.user.delete({
+			where: {
+				email: deleteAdmin.email,
+			},
+		})
+		return deleteAdmin
+	})
+	return result
+}
+
+const softDeleteAdminById = async (id: string) => {
+	await prisma.admin.findUniqueOrThrow({
+		where: {
+			id,
+		},
+	})
+
+	const result = await prisma.$transaction(async (transactionClient) => {
+		const adminSoftDelete = await transactionClient.admin.update({
+			where: {
+				id,
+			},
+			data: {
+				isDeleted: true,
+			},
+		})
+		const userSoftDelete = await transactionClient.user.update({
+			where: {
+				email: adminSoftDelete.email,
+			},
+			data: {
+				status: UserStatus.DELETED,
+			},
+		})
+		return adminSoftDelete
+	})
+	return result
+}
+
 export const adminServices = {
 	getAllAdmin,
 	getAdminById,
 	updateAdminById,
+	deleteAdminById,
+	softDeleteAdminById,
 }

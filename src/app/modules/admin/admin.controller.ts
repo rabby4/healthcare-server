@@ -62,8 +62,46 @@ const updateAdminById = async (req: Request, res: Response) => {
 	}
 }
 
+const deleteAdminById = async (req: Request, res: Response) => {
+	const { id } = req.params
+	try {
+		const result = await adminServices.deleteAdminById(id)
+		res.status(200).json({
+			success: true,
+			message: "Admin data deleted!",
+			data: result,
+		})
+	} catch (error: any) {
+		res.status(500).json({
+			success: false,
+			message: error.name || "Something want wrong!",
+			error,
+		})
+	}
+}
+
+const softDeleteAdminById = async (req: Request, res: Response) => {
+	const { id } = req.params
+	try {
+		const result = await adminServices.softDeleteAdminById(id)
+		res.status(200).json({
+			success: true,
+			message: "Admin data deleted!",
+			data: result,
+		})
+	} catch (error: any) {
+		res.status(500).json({
+			success: false,
+			message: error.name || "Something want wrong!",
+			error,
+		})
+	}
+}
+
 export const adminController = {
 	getAllAdmin,
 	getAdminById,
 	updateAdminById,
+	deleteAdminById,
+	softDeleteAdminById,
 }
