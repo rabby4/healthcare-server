@@ -319,6 +319,13 @@
   dependencies:
     undici-types "~6.21.0"
 
+"@types/nodemailer@^6.4.17":
+  version "6.4.17"
+  resolved "https://registry.yarnpkg.com/@types/nodemailer/-/nodemailer-6.4.17.tgz#5c82a42aee16a3dd6ea31446a1bd6a447f1ac1a4"
+  integrity sha512-I9CCaIp6DTldEg7vyUTZi8+9Vo0hi1/T8gv3C89yk1rSAAzoKQ8H8ki/jBYJSFoH/BisgLP8tkZMlQ91CIquww==
+  dependencies:
+    "@types/node" "*"
+
 "@types/qs@*":
   version "6.9.18"
   resolved "https://registry.yarnpkg.com/@types/qs/-/qs-6.9.18.tgz#877292caa91f7c1b213032b34626505b746624c2"
@@ -1142,6 +1149,11 @@ node-fetch@^2.6.7:
   integrity sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==
   dependencies:
     whatwg-url "^5.0.0"
+
+nodemailer@^7.0.3:
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-7.0.3.tgz#c098ce79ac60c7c111a86949eed2f99bd00cdac3"
+  integrity sha512-Ajq6Sz1x7cIK3pN6KesGTah+1gnwMnx5gKl3piQlQQE/PwyJ4Mbc8is2psWYxK3RJTVeqsDaCv8ZzXLCDHMTZw==
 
 nopt@^5.0.0:
   version "5.0.0"
