@@ -24,6 +24,7 @@ model User {
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
   Admin              Admin?
+  Doctor             Doctor?
 
   @@map("users")
 }
@@ -44,6 +45,31 @@ model Admin {
   @@map("admins")
 }
 
+model Doctor {
+  id                  String   @id @default(uuid())
+  name                String
+  email               String   @unique
+  profilePhoto        String?
+  contactNumber       String
+  address             String?
+  registrationNumber  String
+  experience          Int      @default(0)
+  gender              Gender
+  appointmentFee      Int
+  qualification       String
+  currentWorkingPlace String
+  designation         String
+  averageRating       Float    @default(0)
+  isDeleted           Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  //? one to one relation between user and doctor
+  user User @relation(fields: [email], references: [email])
+
+  @@map("doctors")
+}
+
 enum UserRole {
   SUPER_ADMIN
   ADMIN
@@ -55,4 +81,9 @@ enum UserStatus {
   ACTIVE
   BLOCKED
   DELETED
+}
+
+enum Gender {
+  MALE
+  FEMALE
 }
