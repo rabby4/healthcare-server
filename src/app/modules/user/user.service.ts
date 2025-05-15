@@ -5,7 +5,6 @@ import { fileUploader } from "../../../helpers/fileUploader"
 
 const createAdmin = async (req: any) => {
 	const file = req.file
-	console.log(req.body)
 	if (file) {
 		const uploadedFile = await fileUploader.uploadToCloudinary(file)
 		req.body.admin.profilePhoto = uploadedFile?.secure_url
