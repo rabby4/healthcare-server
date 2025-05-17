@@ -7,6 +7,8 @@ import { userValidation } from "./user.validation"
 
 const router = express.Router()
 
+router.get("/", userController.getAllUsers)
+
 router.post(
 	"/create-admin",
 	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
@@ -28,7 +30,6 @@ router.post(
 
 router.post(
 	"/create-patient",
-	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
 	fileUploader.upload.single("file"),
 	(req: Request, res: Response, next: NextFunction) => {
 		req.body = userValidation.createPatient.parse(JSON.parse(req.body.data))
