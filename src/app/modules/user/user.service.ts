@@ -133,6 +133,18 @@ const getAllUsers = async (params: any, options: IPagination) => {
 						[options.sortBy]: options.sortOrder,
 				  }
 				: { createdAt: "desc" },
+		select: {
+			id: true,
+			email: true,
+			role: true,
+			needPasswordChange: true,
+			status: true,
+			createdAt: true,
+			updatedAt: true,
+			Admin: true,
+			Doctor: true,
+			Patient: true,
+		},
 	})
 
 	const total: number = await prisma.user.count({
@@ -149,9 +161,26 @@ const getAllUsers = async (params: any, options: IPagination) => {
 	}
 }
 
+const changeProfileStatus = async (id: string, status: UserRole) => {
+	await prisma.user.findUniqueOrThrow({
+		where: {
+			id,
+		},
+	})
+
+	const updateStatus = await prisma.user.update({
+		where: {
+			id,
+		},
+		data: status,
+	})
+	return updateStatus
+}
+
 export const userServices = {
 	createAdmin,
 	createDoctor,
 	createPatient,
 	getAllUsers,
+	changeProfileStatus,
 }
