@@ -13,6 +13,12 @@ router.get(
 	userController.getAllUsers
 )
 
+router.get(
+	"/me",
+	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
+	userController.getMyProfile
+)
+
 router.post(
 	"/create-admin",
 	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
