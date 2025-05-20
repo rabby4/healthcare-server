@@ -1,4 +1,11 @@
-import { Admin, Doctor, Patient, Prisma, UserRole } from "@prisma/client"
+import {
+	Admin,
+	Doctor,
+	Patient,
+	Prisma,
+	UserRole,
+	UserStatus,
+} from "@prisma/client"
 import * as bcrypt from "bcrypt"
 import prisma from "../../../shared/prisma"
 import { fileUploader } from "../../../helpers/fileUploader"
@@ -7,6 +14,7 @@ import { IFile } from "../../interfaces/file"
 import { paginationHelpers } from "../../../helpers/paginationHelpers"
 import { IPagination } from "../../interfaces/pagination"
 import { userSearchableFields } from "./user.constant"
+import { IAuthUser } from "../../interfaces/common"
 
 const createAdmin = async (req: Request): Promise<Admin> => {
 	const file = req.file as IFile
@@ -177,10 +185,11 @@ const changeProfileStatus = async (id: string, status: UserRole) => {
 	return updateStatus
 }
 
-const getMyProfile = async (user) => {
+const getMyProfile = async (user: IAuthUser) => {
 	const userInfo = await prisma.user.findUniqueOrThrow({
 		where: {
-			email: user.email,
+			email: user?.email,
+			status: UserStatus.ACTIVE,
 		},
 		select: {
 			id: true,
@@ -219,6 +228,51 @@ const getMyProfile = async (user) => {
 	return { ...userInfo, ...profileInfo }
 }
 
+const updateMyProfile = async (user: IAuthUser, req: Request) => {
+	const userInfo = await prisma.user.findUniqueOrThrow({
+		where: {
+			email: user?.email,
+			status: UserStatus.ACTIVE,
+		},
+	})
+
+	const file = req.file as IFile
+	if (file) {
+		const uploadedFile = await fileUploader.uploadToCloudinary(file)
+		req.body.profilePhoto = uploadedFile?.secure_url
+	}
+
+	let profileInfo
+
+	if (
+		userInfo.role === UserRole.SUPER_ADMIN ||
+		userInfo.role === UserRole.ADMIN
+	) {
+		profileInfo = await prisma.admin.update({
+			where: {
+				email: userInfo.email,
+			},
+			data: req.body,
+		})
+	} else if (userInfo.role === UserRole.DOCTOR) {
+		profileInfo = await prisma.doctor.update({
+			where: {
+				email: userInfo.email,
+			},
+			data: req.body,
+		})
+	} else if (userInfo.role === UserRole.PATIENT) {
+		profileInfo = await prisma.patient.update({
+			where: {
+				email: userInfo.email,
+			},
+			data: req.body,
+		})
+	}
+
+	return { ...profileInfo }
+}
+
 export const userServices = {
 	createAdmin,
 	createDoctor,
@@ -226,4 +280,5 @@ export const userServices = {
 	getAllUsers,
 	changeProfileStatus,
 	getMyProfile,
+	updateMyProfile,
 }

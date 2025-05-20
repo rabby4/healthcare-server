@@ -6,6 +6,7 @@ import { paginationOptions } from "../admin/admin.constant"
 import sendResponse from "../../../shared/sendResponse"
 import status from "http-status"
 import { userFilterableFields } from "./user.constant"
+import { IAuthUser } from "../../interfaces/common"
 
 const createAdmin = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -93,17 +94,33 @@ const changeProfileStatus = catchAsync(async (req, res) => {
 	})
 })
 
-const getMyProfile = catchAsync(async (req, res) => {
-	const user = req.user
-	const result = await userServices.getMyProfile(user)
+const getMyProfile = catchAsync(
+	async (req: Request & { user?: IAuthUser }, res) => {
+		const user = req.user
+		const result = await userServices.getMyProfile(user as IAuthUser)
 
-	sendResponse(res, {
-		statusCode: status.OK,
-		success: true,
-		message: "User profile fetched successfully!",
-		data: result,
-	})
-})
+		sendResponse(res, {
+			statusCode: status.OK,
+			success: true,
+			message: "User profile fetched successfully!",
+			data: result,
+		})
+	}
+)
+
+const updateMyProfile = catchAsync(
+	async (req: Request & { user?: IAuthUser }, res) => {
+		const user = req.user
+		const result = await userServices.updateMyProfile(user as IAuthUser, req)
+
+		sendResponse(res, {
+			statusCode: status.OK,
+			success: true,
+			message: "My profile updated successfully!",
+			data: result,
+		})
+	}
+)
 
 export const userController = {
 	createAdmin,
@@ -112,4 +129,5 @@ export const userController = {
 	getAllUsers,
 	changeProfileStatus,
 	getMyProfile,
+	updateMyProfile,
 }
