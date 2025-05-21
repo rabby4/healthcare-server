@@ -5,6 +5,8 @@ import { specialtyValidation } from "./specialties.validation"
 
 const router = express.Router()
 
+router.get("/", specialtyController.getAllSpecialties)
+
 router.post(
 	"/",
 	fileUploader.upload.single("file"),
@@ -16,6 +18,6 @@ router.post(
 	}
 )
 
-router.get("/", specialtyController.getAllSpecialties)
+router.delete("/:id", specialtyController.deleteSpecialty)
 
 export const specialtiesRoutes = router
