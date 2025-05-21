@@ -16,6 +16,12 @@ const createSpecialty = async (req: Request) => {
 	return result
 }
 
+const getAllSpecialties = async () => {
+	const result = await prisma.specialties.findMany()
+	return result
+}
+
 export const specialtyServices = {
 	createSpecialty,
+	getAllSpecialties,
 }

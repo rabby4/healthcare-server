@@ -16,4 +16,6 @@ router.post(
 	}
 )
 
+router.get("/", specialtyController.getAllSpecialties)
+
 export const specialtiesRoutes = router
