@@ -29,6 +29,18 @@ const getDoctorById = catchAsync(async (req, res) => {
 	})
 })
 
+const updateDoctorById = catchAsync(async (req, res) => {
+	const { id } = req.params
+	const data = req.body
+	const result = await doctorServices.updateDoctorById(id, data)
+	sendResponse(res, {
+		statusCode: status.OK,
+		success: true,
+		message: "Doctor updated successfully!",
+		data: result,
+	})
+})
+
 const deleteDoctorById = catchAsync(async (req, res) => {
 	const { id } = req.params
 	const result = await doctorServices.deleteDoctorById(id)
@@ -54,6 +66,7 @@ const softDeleteAdminById = catchAsync(async (req, res) => {
 export const doctorController = {
 	getAllDoctors,
 	getDoctorById,
+	updateDoctorById,
 	deleteDoctorById,
 	softDeleteAdminById,
 }
