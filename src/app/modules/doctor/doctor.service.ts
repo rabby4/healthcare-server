@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client"
+import { Prisma, UserStatus } from "@prisma/client"
 import { paginationHelpers } from "../../../helpers/paginationHelpers"
 import prisma from "../../../shared/prisma"
 import { searchFields } from "./doctor.constant"
@@ -97,8 +97,38 @@ const deleteDoctorById = async (id: string) => {
 	return result
 }
 
+const softDeleteDoctorById = async (id: string) => {
+	await prisma.doctor.findUniqueOrThrow({
+		where: {
+			id,
+		},
+	})
+
+	const result = await prisma.$transaction(async (transactionClient) => {
+		const deleteDoctor = await transactionClient.doctor.update({
+			where: {
+				id,
+			},
+			data: {
+				isDeleted: true,
+			},
+		})
+		await transactionClient.user.update({
+			where: {
+				email: deleteDoctor.email,
+			},
+			data: {
+				status: UserStatus.DELETED,
+			},
+		})
+		return deleteDoctor
+	})
+	return result
+}
+
 export const doctorServices = {
 	getAllDoctors,
 	getDoctorById,
 	deleteDoctorById,
+	softDeleteDoctorById,
 }
