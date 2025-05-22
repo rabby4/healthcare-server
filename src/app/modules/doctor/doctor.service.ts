@@ -74,7 +74,31 @@ const getDoctorById = async (id: string) => {
 	return result
 }
 
+const deleteDoctorById = async (id: string) => {
+	await prisma.doctor.findUniqueOrThrow({
+		where: {
+			id,
+		},
+	})
+
+	const result = await prisma.$transaction(async (transactionClient) => {
+		const deleteDoctor = await transactionClient.doctor.delete({
+			where: {
+				id,
+			},
+		})
+		await transactionClient.user.delete({
+			where: {
+				email: deleteDoctor.email,
+			},
+		})
+		return deleteDoctor
+	})
+	return result
+}
+
 export const doctorServices = {
 	getAllDoctors,
 	getDoctorById,
+	deleteDoctorById,
 }

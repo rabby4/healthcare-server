@@ -1,3 +1,4 @@
+import status from "http-status"
 import catchAsync from "../../../shared/catchAsync"
 import pick from "../../../shared/pick"
 import sendResponse from "../../../shared/sendResponse"
@@ -9,7 +10,7 @@ const getAllDoctors = catchAsync(async (req, res) => {
 	const options = pick(req.query, paginationOptions)
 	const result = await doctorServices.getAllDoctors(filters, options)
 	sendResponse(res, {
-		statusCode: 200,
+		statusCode: status.OK,
 		success: true,
 		message: "All doctors fetched successfully!",
 		meta: result.meta,
@@ -21,14 +22,26 @@ const getDoctorById = catchAsync(async (req, res) => {
 	const { id } = req.params
 	const result = await doctorServices.getDoctorById(id)
 	sendResponse(res, {
-		statusCode: 200,
+		statusCode: status.OK,
 		success: true,
 		message: "Doctor fetched successfully!",
 		data: result,
 	})
 })
 
+const deleteDoctorById = catchAsync(async (req, res) => {
+	const { id } = req.params
+	const result = await doctorServices.deleteDoctorById(id)
+	sendResponse(res, {
+		statusCode: status.OK,
+		success: true,
+		message: "Doctor deleted successfully!",
+		data: result,
+	})
+})
+
 export const doctorController = {
 	getAllDoctors,
-	getDoctorById
+	getDoctorById,
+	deleteDoctorById,
 }
