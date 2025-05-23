@@ -3,4 +3,7 @@ export type IDoctorFilterRequest = {
 	email?: string | undefined
 	searchTerm?: string | undefined
 	contactNumber?: string | undefined
+	gender?: string | undefined
+	appointmentFee?: string | undefined
+	specialties?: string | undefined
 }
