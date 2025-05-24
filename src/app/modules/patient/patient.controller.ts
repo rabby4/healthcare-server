@@ -12,12 +12,24 @@ const getAllPatient = catchAsync(async (req, res) => {
 	sendResponse(res, {
 		statusCode: status.OK,
 		success: true,
-		message: "All admin fetched successfully!",
+		message: "All patient fetched successfully!",
 		meta: result.meta,
 		data: result.data,
 	})
 })
 
+const getPatientById = catchAsync(async (req, res) => {
+	const { id } = req.params
+	const result = await patientService.getPatientById(id)
+	sendResponse(res, {
+		statusCode: status.OK,
+		success: true,
+		message: "Patient data fetched by id!",
+		data: result,
+	})
+})
+
 export const patientController = {
 	getAllPatient,
+	getPatientById,
 }

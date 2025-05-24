@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client"
+import { Patient, Prisma } from "@prisma/client"
 import { IPagination } from "../../interfaces/pagination"
 import { paginationHelpers } from "../../../helpers/paginationHelpers"
 import prisma from "../../../shared/prisma"
@@ -50,6 +50,10 @@ const getAllPatient = async (
 						[options.sortBy]: options.sortOrder,
 				  }
 				: { createdAt: "desc" },
+		include: {
+			MedicalReport: true,
+			patientHealthData: true,
+		},
 	})
 
 	const total: number = await prisma.patient.count({
@@ -66,6 +70,21 @@ const getAllPatient = async (
 	}
 }
 
+const getPatientById = async (id: string): Promise<Patient | null> => {
+	const result = await prisma.patient.findUnique({
+		where: {
+			id,
+			isDeleted: false,
+		},
+		include: {
+			MedicalReport: true,
+			patientHealthData: true,
+		},
+	})
+	return result
+}
+
 export const patientService = {
 	getAllPatient,
+	getPatientById,
 }

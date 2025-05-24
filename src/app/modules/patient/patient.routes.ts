@@ -10,10 +10,11 @@ router.get(
 	// auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
 	patientController.getAllPatient
 )
-// router.get(
-// 	"/:id",
-// 	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-// 	adminController.getAdminById
-// )
+
+router.get(
+	"/:id",
+	// auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+	patientController.getPatientById
+)
 
 export const patientRoutes = router
