@@ -23,4 +23,10 @@ router.patch(
 	patientController.updatePatient
 )
 
+router.delete(
+	"/:id",
+	// auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+	patientController.deletePatient
+)
+
 export const patientRoutes = router

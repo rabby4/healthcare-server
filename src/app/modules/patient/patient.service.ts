@@ -96,7 +96,7 @@ const updatePatient = async (
 		},
 	})
 
-	const result = await prisma.$transaction(async (transactionClient) => {
+	await prisma.$transaction(async (transactionClient) => {
 		// update patient data
 		await transactionClient.patient.update({
 			where: {
@@ -142,8 +142,44 @@ const updatePatient = async (
 	return responseData
 }
 
+const deletePatient = async (id: string) => {
+	const result = await prisma.$transaction(async (tx) => {
+		//! delete medical report
+		await tx.medicalReport.deleteMany({
+			where: {
+				patientId: id,
+			},
+		})
+
+		//! delete patient health data
+		await tx.patientHealthData.delete({
+			where: {
+				patientId: id,
+			},
+		})
+
+		//! delete patient
+		const deletedPatient = await tx.patient.delete({
+			where: {
+				id,
+			},
+		})
+
+		//! delete user
+		await tx.user.delete({
+			where: {
+				email: deletedPatient.email,
+			},
+		})
+		return deletedPatient
+	})
+
+	return result
+}
+
 export const patientService = {
 	getAllPatient,
 	getPatientById,
 	updatePatient,
+	deletePatient,
 }
