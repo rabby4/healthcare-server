@@ -17,4 +17,10 @@ router.get(
 	patientController.getPatientById
 )
 
+router.patch(
+	"/:id",
+	// auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+	patientController.updatePatient
+)
+
 export const patientRoutes = router

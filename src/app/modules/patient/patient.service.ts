@@ -2,7 +2,7 @@ import { Patient, Prisma } from "@prisma/client"
 import { IPagination } from "../../interfaces/pagination"
 import { paginationHelpers } from "../../../helpers/paginationHelpers"
 import prisma from "../../../shared/prisma"
-import { IPatientFilterRequest } from "./patient.interface"
+import { IPatientFilterRequest, IPatientUpdate } from "./patient.interface"
 import { searchFields } from "./patient.constant"
 
 const getAllPatient = async (
@@ -51,7 +51,7 @@ const getAllPatient = async (
 				  }
 				: { createdAt: "desc" },
 		include: {
-			MedicalReport: true,
+			medicalReport: true,
 			patientHealthData: true,
 		},
 	})
@@ -77,14 +77,73 @@ const getPatientById = async (id: string): Promise<Patient | null> => {
 			isDeleted: false,
 		},
 		include: {
-			MedicalReport: true,
+			medicalReport: true,
 			patientHealthData: true,
 		},
 	})
 	return result
 }
 
+const updatePatient = async (
+	id: string,
+	payload: Partial<IPatientUpdate>
+): Promise<Patient | null> => {
+	const { patientHealthData, medicalReport, ...patientData } = payload
+
+	const patientInfo = await prisma.patient.findUniqueOrThrow({
+		where: {
+			id,
+		},
+	})
+
+	const result = await prisma.$transaction(async (transactionClient) => {
+		// update patient data
+		await transactionClient.patient.update({
+			where: {
+				id,
+			},
+			data: patientData,
+			include: {
+				medicalReport: true,
+				patientHealthData: true,
+			},
+		})
+
+		// create or update patient health data
+		if (patientHealthData) {
+			await transactionClient.patientHealthData.upsert({
+				where: {
+					patientId: patientInfo.id,
+				},
+				update: patientHealthData,
+				create: { ...patientHealthData, patientId: patientInfo.id },
+			})
+		}
+
+		// create medical report
+		if (medicalReport) {
+			await transactionClient.medicalReport.create({
+				data: { ...medicalReport, patientId: patientInfo.id },
+			})
+		}
+	})
+
+	const responseData = await prisma.patient.findUnique({
+		where: {
+			id,
+			isDeleted: false,
+		},
+		include: {
+			medicalReport: true,
+			patientHealthData: true,
+		},
+	})
+
+	return responseData
+}
+
 export const patientService = {
 	getAllPatient,
 	getPatientById,
+	updatePatient,
 }

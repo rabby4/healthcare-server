@@ -85,7 +85,7 @@ model Patient {
   //? one to one relation between user and admin
   user              User               @relation(fields: [email], references: [email])
   patientHealthData PatientHealthData?
-  MedicalReport     MedicalReport[]
+  medicalReport     MedicalReport[]
 
   @@map("patients")
 }
@@ -111,22 +111,22 @@ model PatientHealthData {
   id                  String        @id @default(uuid())
   patientId           String        @unique
   patient             Patient       @relation(fields: [patientId], references: [id])
-  dateOfBirth         DateTime
+  dateOfBirth         String
   gender              Gender
   bloodGroup          BloodGroup
-  hasAllergies        Boolean
-  hasDiabetes         Boolean
+  hasAllergies        Boolean?      @default(false)
+  hasDiabetes         Boolean?      @default(false)
   height              String
   weight              String
-  smokingStatus       String
-  dietaryPreferences  String
-  pregnancyStatus     Boolean
-  mentalHealthHistory String
-  immunizationStatus  String
-  hasPastSurgeries    Boolean
-  recentAnxiety       Boolean
-  recentDepression    Boolean
-  maritalStatus       MaritalStatus
+  smokingStatus       Boolean?      @default(false)
+  dietaryPreferences  String?
+  pregnancyStatus     Boolean?      @default(false)
+  mentalHealthHistory String?
+  immunizationStatus  String?
+  hasPastSurgeries    Boolean?      @default(false)
+  recentAnxiety       Boolean?      @default(false)
+  recentDepression    Boolean?      @default(false)
+  maritalStatus       MaritalStatus @default(UNMARRIED)
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 }
