@@ -137,7 +137,17 @@ const getAllSchedules = async (
 	}
 }
 
+const getScheduleById = async (id: string): Promise<Schedule | null> => {
+	const result = await prisma.schedule.findUnique({
+		where: {
+			id,
+		},
+	})
+	return result
+}
+
 export const scheduleService = {
 	createSchedule,
 	getAllSchedules,
+	getScheduleById,
 }

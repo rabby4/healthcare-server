@@ -3,7 +3,7 @@ import catchAsync from "../../../shared/catchAsync"
 import sendResponse from "../../../shared/sendResponse"
 import { scheduleService } from "./schedule.service"
 import pick from "../../../shared/pick"
-import { Request } from "express"
+import { Request, Response } from "express"
 import { IAuthUser } from "../../interfaces/common"
 
 const createSchedule = catchAsync(async (req, res) => {
@@ -32,7 +32,19 @@ const getAllSchedules = catchAsync(
 	}
 )
 
+const getScheduleById = catchAsync(async (req: Request, res: Response) => {
+	const { id } = req.params
+	const result = await scheduleService.getScheduleById(id)
+	sendResponse(res, {
+		statusCode: status.OK,
+		success: true,
+		message: "Schedule retrieval successfully",
+		data: result,
+	})
+})
+
 export const scheduleController = {
 	createSchedule,
 	getAllSchedules,
+	getScheduleById,
 }

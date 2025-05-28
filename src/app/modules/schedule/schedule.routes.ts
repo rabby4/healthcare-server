@@ -7,6 +7,12 @@ const router = express.Router()
 
 router.get("/", auth(UserRole.DOCTOR), scheduleController.getAllSchedules)
 
+router.get(
+	"/:id",
+	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR),
+	scheduleController.getScheduleById
+)
+
 router.post(
 	"/",
 	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
