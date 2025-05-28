@@ -146,8 +146,18 @@ const getScheduleById = async (id: string): Promise<Schedule | null> => {
 	return result
 }
 
+const deleteSchedule = async (id: string): Promise<Schedule> => {
+	const result = await prisma.schedule.delete({
+		where: {
+			id,
+		},
+	})
+	return result
+}
+
 export const scheduleService = {
 	createSchedule,
 	getAllSchedules,
 	getScheduleById,
+	deleteSchedule,
 }
