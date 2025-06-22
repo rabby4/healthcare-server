@@ -17,4 +17,10 @@ router.get(
 	appointmentController.getMyAppointments
 )
 
+router.get(
+	"/",
+	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+	appointmentController.getAllAppointments
+)
+
 export const appointmentRoutes = router
