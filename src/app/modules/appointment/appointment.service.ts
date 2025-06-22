@@ -49,6 +49,18 @@ const createAppointment = async (user: IAuthUser, payload: any) => {
 				appointmentId: appointmentData.id,
 			},
 		})
+
+		const today = new Date()
+		const transactionId = `txID-${today.getFullYear()}-${today.getMonth()}-${today.getHours()}-${today.getMinutes()}-${today.getSeconds()}`
+		console.log(transactionId)
+
+		await tx.payment.create({
+			data: {
+				appointmentId: appointmentData.id,
+				amount: doctorData.appointmentFee,
+				transactionId,
+			},
+		})
 		return appointmentData
 	})
 
