@@ -4,6 +4,7 @@ import sendResponse from "../../../shared/sendResponse"
 import { appointmentService } from "./appointment.service"
 import { IAuthUser } from "../../interfaces/common"
 import { Request } from "express"
+import pick from "../../../shared/pick"
 
 const createAppointment = catchAsync(
 	async (req: Request & { user?: IAuthUser }, res) => {
@@ -23,6 +24,28 @@ const createAppointment = catchAsync(
 	}
 )
 
+const getMyAppointments = catchAsync(
+	async (req: Request & { user?: IAuthUser }, res) => {
+		const user = req.user
+		const filter = pick(req.query, ["status", "paymentStatus"])
+		const options = pick(req.query, ["sortBy", "limit", "page", "sortOrder"])
+
+		const result = await appointmentService.getMyAppointments(
+			user as IAuthUser,
+			filter,
+			options
+		)
+
+		sendResponse(res, {
+			statusCode: status.OK,
+			success: true,
+			message: "Appointments retrieved successfully!",
+			data: result,
+		})
+	}
+)
+
 export const appointmentController = {
 	createAppointment,
+	getMyAppointments,
 }

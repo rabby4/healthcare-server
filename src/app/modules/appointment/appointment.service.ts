@@ -1,6 +1,9 @@
 import prisma from "../../../shared/prisma"
 import { IAuthUser } from "../../interfaces/common"
 import { v4 as uuidv4 } from "uuid"
+import { IPagination } from "../../interfaces/pagination"
+import { paginationHelpers } from "../../../helpers/paginationHelpers"
+import { Prisma, UserRole } from "@prisma/client"
 
 const createAppointment = async (user: IAuthUser, payload: any) => {
 	const patientData = await prisma.patient.findUniqueOrThrow({
@@ -67,6 +70,79 @@ const createAppointment = async (user: IAuthUser, payload: any) => {
 	return result
 }
 
+const getMyAppointments = async (
+	user: IAuthUser,
+	filter: any,
+	options: IPagination
+) => {
+	const { limit, page, skip } = paginationHelpers.calculatePagination(options)
+	const { ...filterData } = filter
+
+	const andCondition: Prisma.AppointmentWhereInput[] = []
+
+	if (user?.role === UserRole.PATIENT) {
+		andCondition.push({
+			patient: {
+				email: user.email,
+			},
+		})
+	} else if (user?.role === UserRole.DOCTOR) {
+		andCondition.push({
+			doctor: {
+				email: user.email,
+			},
+		})
+	}
+
+	if (Object.keys(filterData).length > 0) {
+		andCondition.push({
+			AND: Object.keys(filterData).map((key) => ({
+				[key]: {
+					equals: (filterData as any)[key],
+				},
+			})),
+		})
+	}
+
+	const whereCondition: Prisma.AppointmentWhereInput = { AND: andCondition }
+
+	const result = await prisma.appointment.findMany({
+		where: whereCondition,
+		skip,
+		take: limit,
+		orderBy:
+			options.sortBy && options.sortOrder
+				? { [options.sortBy]: options.sortOrder }
+				: { createdAt: "desc" },
+		include:
+			user?.role === UserRole.PATIENT
+				? { doctor: true, schedule: true }
+				: {
+						patient: {
+							include: {
+								medicalReport: true,
+								patientHealthData: true,
+							},
+						},
+						schedule: true,
+				  },
+	})
+
+	const total: number = await prisma.appointment.count({
+		where: whereCondition,
+	})
+
+	return {
+		meta: {
+			page,
+			limit,
+			total,
+		},
+		data: result,
+	}
+}
+
 export const appointmentService = {
 	createAppointment,
+	getMyAppointments,
 }
