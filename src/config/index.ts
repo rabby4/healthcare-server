@@ -24,4 +24,13 @@ export default {
 		api_key: process.env.CLOUDINARY_API_KEY,
 		api_secret: process.env.CLOUDINARY_API_SECRET,
 	},
+	ssl: {
+		store_id: process.env.STORE_ID,
+		store_passwd: process.env.STORE_PASSWORD,
+		success_url: process.env.SUCCESS_URL,
+		cancel_url: process.env.CANCEL_URL,
+		fail_url: process.env.FAIL_URL,
+		payment_api: process.env.PAYMENT_API,
+		validation_api: process.env.VALIDATION_API,
+	},
 }
