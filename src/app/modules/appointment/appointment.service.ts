@@ -292,7 +292,6 @@ const cancelAppointment = async () => {
 			})
 		}
 	})
-	console.log("updated")
 }
 
 export const appointmentService = {
