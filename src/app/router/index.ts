@@ -46,6 +46,10 @@ const moduleRoutes = [
 		route: doctorScheduleRoutes,
 	},
 	{
+		path: "/appointment",
+		route: appointmentRoutes,
+	},
+	{
 		path: "/payment",
 		route: paymentRoutes,
 	},
