@@ -59,8 +59,28 @@ const getAllAppointments = catchAsync(async (req: Request, res: Response) => {
 	})
 })
 
+const changeAppointmentStatus = catchAsync(
+	async (req: Request & { user?: IAuthUser }, res: Response) => {
+		const { id } = req.params
+		const { appointmentStatus } = req.body
+		const user = req.user as IAuthUser
+		const result = await appointmentService.changeAppointmentStatus(
+			id,
+			appointmentStatus,
+			user as IAuthUser
+		)
+		sendResponse(res, {
+			statusCode: status.OK,
+			success: true,
+			message: "Appointment status changed successfully",
+			data: result,
+		})
+	}
+)
+
 export const appointmentController = {
 	createAppointment,
 	getMyAppointments,
 	getAllAppointments,
+	changeAppointmentStatus,
 }
