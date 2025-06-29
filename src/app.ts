@@ -4,6 +4,8 @@ import router from "./app/router"
 import globalErrorHandler from "./app/middlewares/globalErrorHandler"
 import status from "http-status"
 import cookieParser from "cookie-parser"
+import { appointmentService } from "./app/modules/appointment/appointment.service"
+import cron from "node-cron"
 
 const app: Application = express()
 
@@ -13,6 +15,10 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
+
+cron.schedule("* * * * *", () => {
+	appointmentService.cancelAppointment()
+})
 
 app.get("/", (req: Request, res: Response) => {
 	res.send({
