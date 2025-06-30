@@ -14,6 +14,8 @@ export default {
 		resetPassToken: process.env.RESET_PASS_TOKEN,
 		resetPassExpireIn: process.env.RESET_PASS_EXPIRE_IN,
 	},
+	superAdminEmail: process.env.SUPER_ADMIN_EMAIL,
+	superAdminPassword: process.env.SUPER_ADMIN_PASSWORD,
 	resetPassURL: process.env.RESET_PASS_URL,
 	emailSender: {
 		email: process.env.EMAIL,
