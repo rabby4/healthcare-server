@@ -63,7 +63,7 @@ const getAllDoctors = async (
 		orderBy:
 			options.sortBy && options.sortOrder
 				? { [options.sortBy]: options.sortOrder }
-				: { createdAt: "desc" },
+				: { averageRating: "desc" },
 	})
 
 	const total: number = await prisma.doctor.count({

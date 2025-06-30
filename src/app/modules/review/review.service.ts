@@ -22,16 +22,33 @@ const createReview = async (user: IAuthUser, payload: any) => {
 		)
 	}
 
-	const result = await prisma.review.create({
-		data: {
-			appointmentId: appointmentData.id,
-			doctorId: appointmentData.doctorId,
-			patientId: appointmentData.patientId,
-			rating: payload.rating,
-			comment: payload.comment,
-		},
+	return await prisma.$transaction(async (tx) => {
+		const result = await tx.review.create({
+			data: {
+				appointmentId: appointmentData.id,
+				doctorId: appointmentData.doctorId,
+				patientId: appointmentData.patientId,
+				rating: payload.rating,
+				comment: payload.comment,
+			},
+		})
+
+		const avgRating = await tx.review.aggregate({
+			_avg: {
+				rating: true,
+			},
+		})
+		await tx.doctor.update({
+			where: {
+				id: appointmentData.doctorId,
+			},
+			data: {
+				averageRating: avgRating._avg.rating as number,
+			},
+		})
+
+		return result
 	})
-	return result
 }
 
 export const reviewService = {
