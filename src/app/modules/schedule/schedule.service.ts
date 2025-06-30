@@ -5,6 +5,7 @@ import { IFilterRequest, ISchedule } from "./schedule.interface"
 import { paginationHelpers } from "../../../helpers/paginationHelpers"
 import { IPagination } from "../../interfaces/pagination"
 import { IAuthUser } from "../../interfaces/common"
+import convertDateTimeToUTC from "../../../shared/convertDateTime"
 
 const createSchedule = async (payload: ISchedule): Promise<Schedule[]> => {
 	const { startDate, endDate, startTime, endTime } = payload
@@ -35,10 +36,19 @@ const createSchedule = async (payload: ISchedule): Promise<Schedule[]> => {
 			)
 		)
 
+		const st = await convertDateTimeToUTC(startDateTime)
+		const et = await convertDateTimeToUTC(
+			addMinutes(startDateTime, intervalTime)
+		)
+
 		while (startDateTime < endDateTime) {
+			// const scheduleData = {
+			// 	startDateTime: startDateTime,
+			// 	endDateTime: addMinutes(startDateTime, intervalTime),
+			// }
 			const scheduleData = {
-				startDateTime: startDateTime,
-				endDateTime: addMinutes(startDateTime, intervalTime),
+				startDateTime: st,
+				endDateTime: et,
 			}
 
 			const existingSchedule = await prisma.schedule.findFirst({
@@ -143,6 +153,7 @@ const getScheduleById = async (id: string): Promise<Schedule | null> => {
 			id,
 		},
 	})
+	console.log(result?.startDateTime.getHours())
 	return result
 }
 
