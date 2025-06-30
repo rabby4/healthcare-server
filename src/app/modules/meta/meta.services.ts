@@ -1,28 +1,52 @@
-import { UserRole } from "@prisma/client"
+import { PaymentStatus, UserRole } from "@prisma/client"
 import { IAuthUser } from "../../interfaces/common"
 import prisma from "../../../shared/prisma"
 
 const fetchDashboardMetaData = async (user: IAuthUser) => {
+	let metaData
 	switch (user?.role) {
 		case UserRole.SUPER_ADMIN:
-			getSuperAdminMetaData()
+			metaData = getSuperAdminMetaData()
 			break
 		case UserRole.ADMIN:
-			getAdminMetaData()
+			metaData = getAdminMetaData()
 			break
 		case UserRole.DOCTOR:
-			getDoctorMetaData(user as IAuthUser)
+			metaData = getDoctorMetaData(user)
 			break
 		case UserRole.PATIENT:
-			getPatientMetaData()
+			metaData = getPatientMetaData(user)
 			break
 		default:
 			throw new Error("Invalid user role")
 	}
+	return metaData
 }
 
 const getSuperAdminMetaData = async () => {
-	console.log("Fetching super admin metadata...")
+	const appointmentCount = await prisma.appointment.count()
+	const doctorCount = await prisma.doctor.count()
+	const patientCount = await prisma.patient.count()
+	const adminCount = await prisma.admin.count()
+	const paymentCount = await prisma.payment.count()
+
+	const revenue = await prisma.payment.aggregate({
+		_sum: {
+			amount: true,
+		},
+		where: {
+			status: PaymentStatus.PAID,
+		},
+	})
+
+	return {
+		appointmentCount,
+		doctorCount,
+		adminCount,
+		patientCount,
+		paymentCount,
+		revenue,
+	}
 }
 
 const getAdminMetaData = async () => {
@@ -35,15 +59,18 @@ const getAdminMetaData = async () => {
 		_sum: {
 			amount: true,
 		},
+		where: {
+			status: PaymentStatus.PAID,
+		},
 	})
 
-	console.log({
+	return {
 		appointmentCount,
 		doctorCount,
 		patientCount,
 		paymentCount,
 		revenue,
-	})
+	}
 }
 
 const getDoctorMetaData = async (user: IAuthUser) => {
@@ -80,6 +107,7 @@ const getDoctorMetaData = async (user: IAuthUser) => {
 			appointment: {
 				doctorId: doctorData?.id,
 			},
+			status: PaymentStatus.PAID,
 		},
 	})
 
@@ -98,11 +126,61 @@ const getDoctorMetaData = async (user: IAuthUser) => {
 		})
 	)
 
-	console.log(formattedAppointmentDistribution, { depth: "infinity" })
+	return {
+		appointmentCount,
+		patientCount: patientCount.length,
+		reviewCount,
+		revenue,
+		formattedAppointmentDistribution,
+	}
 }
 
-const getPatientMetaData = async () => {
-	console.log("Fetching patient metadata...")
+const getPatientMetaData = async (user: IAuthUser) => {
+	const patientData = await prisma.patient.findUnique({
+		where: {
+			email: user?.email,
+		},
+	})
+
+	const appointmentCount = await prisma.appointment.count({
+		where: {
+			patientId: patientData?.id,
+		},
+	})
+
+	const prescriptionCount = await prisma.prescription.count({
+		where: {
+			patientId: patientData?.id,
+		},
+	})
+
+	const reviewCount = await prisma.review.count({
+		where: {
+			patientId: patientData?.id,
+		},
+	})
+
+	const appointmentDistribution = await prisma.appointment.groupBy({
+		by: ["status"],
+		_count: { id: true },
+		where: {
+			patientId: patientData?.id,
+		},
+	})
+
+	const formattedAppointmentDistribution = appointmentDistribution.map(
+		({ status, _count }) => ({
+			status,
+			count: _count.id,
+		})
+	)
+
+	return {
+		appointmentCount,
+		prescriptionCount,
+		reviewCount,
+		formattedAppointmentDistribution,
+	}
 }
 
 export const metaService = {
