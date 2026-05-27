@@ -34,6 +34,9 @@ const createReview = async (user: IAuthUser, payload: any) => {
 		})
 
 		const avgRating = await tx.review.aggregate({
+			where: {
+				doctorId: appointmentData.doctorId,
+			},
 			_avg: {
 				rating: true,
 			},

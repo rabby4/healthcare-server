@@ -42,14 +42,14 @@ const createSchedule = async (payload: ISchedule): Promise<Schedule[]> => {
 		)
 
 		while (startDateTime < endDateTime) {
-			// const scheduleData = {
-			// 	startDateTime: startDateTime,
-			// 	endDateTime: addMinutes(startDateTime, intervalTime),
-			// }
 			const scheduleData = {
-				startDateTime: st,
-				endDateTime: et,
+				startDateTime: startDateTime,
+				endDateTime: addMinutes(startDateTime, intervalTime),
 			}
+			// const scheduleData = {
+			// 	startDateTime: st,
+			// 	endDateTime: et,
+			// }
 
 			const existingSchedule = await prisma.schedule.findFirst({
 				where: {
@@ -153,7 +153,6 @@ const getScheduleById = async (id: string): Promise<Schedule | null> => {
 			id,
 		},
 	})
-	console.log(result?.startDateTime.getHours())
 	return result
 }
 

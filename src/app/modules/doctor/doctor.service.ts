@@ -10,7 +10,6 @@ const getAllDoctors = async (
 	options: IPagination
 ) => {
 	const { searchTerm, specialties, ...filterData } = filters
-	console.log(specialties)
 	const { page, limit, skip } = paginationHelpers.calculatePagination(options)
 	const andCondition: Prisma.DoctorWhereInput[] = []
 
@@ -27,7 +26,7 @@ const getAllDoctors = async (
 
 	if (specialties && specialties.length > 0) {
 		andCondition.push({
-			DoctorSpecialties: {
+			doctorSpecialties: {
 				some: {
 					specialties: {
 						title: {
@@ -64,6 +63,13 @@ const getAllDoctors = async (
 			options.sortBy && options.sortOrder
 				? { [options.sortBy]: options.sortOrder }
 				: { averageRating: "desc" },
+		include: {
+			doctorSpecialties: {
+				include: {
+					specialties: true,
+				},
+			},
+		},
 	})
 
 	const total: number = await prisma.doctor.count({
@@ -85,6 +91,13 @@ const getDoctorById = async (id: string) => {
 		where: {
 			id,
 			isDeleted: false,
+		},
+		include: {
+			doctorSpecialties: {
+				include: {
+					specialties: true,
+				},
+			},
 		},
 	})
 	return result
@@ -129,7 +142,7 @@ const updateDoctorById = async (id: string, payload: any) => {
 			},
 			data: doctorData,
 			include: {
-				DoctorSpecialties: true,
+				doctorSpecialties: true,
 			},
 		})
 
@@ -167,7 +180,7 @@ const updateDoctorById = async (id: string, payload: any) => {
 			id: doctorInfo.id,
 		},
 		include: {
-			DoctorSpecialties: {
+			doctorSpecialties: {
 				include: {
 					specialties: true,
 				},

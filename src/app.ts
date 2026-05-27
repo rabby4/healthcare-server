@@ -6,10 +6,11 @@ import status from "http-status"
 import cookieParser from "cookie-parser"
 import { appointmentService } from "./app/modules/appointment/appointment.service"
 import cron from "node-cron"
+import { seedSuperAdmin } from "./shared/seed"
 
 const app: Application = express()
 
-app.use(cors())
+app.use(cors({ origin: "http://localhost:3000", credentials: true }))
 
 // parser
 app.use(express.json())
@@ -28,6 +29,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api/v1", router)
 app.use(globalErrorHandler)
+
 app.use((req: Request, res: Response, next: NextFunction) => {
 	res.status(status.NOT_FOUND).json({
 		success: false,

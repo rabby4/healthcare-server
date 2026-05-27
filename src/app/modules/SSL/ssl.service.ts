@@ -14,7 +14,7 @@ const initPayment = async (paymentData: any) => {
 			success_url: config.ssl.success_url,
 			fail_url: config.ssl.fail_url,
 			cancel_url: config.ssl.cancel_url,
-			ipn_url: "http://localhost:3030/ipn",
+			ipn_url: "http://localhost:3000/ipn",
 			shipping_method: "N/A",
 			product_name: "Appointment.",
 			product_category: "Service",

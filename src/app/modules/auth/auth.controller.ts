@@ -38,12 +38,15 @@ const changePassword = catchAsync(
 	async (req: Request & { user?: IAuthUser }, res: Response) => {
 		const user = req.user
 
-		const result = await authServices.changePassword(user, req.body)
+		await authServices.changePassword(user, req.body)
 		sendResponse(res, {
 			statusCode: status.OK,
 			success: true,
 			message: "Password changed successfully!",
-			data: result,
+			data: {
+				status: 200,
+				message: "Password changed successfully!",
+			},
 		})
 	}
 )
@@ -54,18 +57,25 @@ const forgotPassword = catchAsync(async (req, res) => {
 		statusCode: status.OK,
 		success: true,
 		message: "Password reset link send!",
-		data: result,
+		data: {
+			status: 200,
+			message: "Check your email for reset link!",
+		},
 	})
 })
 
 const resetPassword = catchAsync(async (req, res) => {
 	const token = req.headers.authorization || ""
 	await authServices.resetPassword(token, req.body)
+
 	sendResponse(res, {
 		statusCode: status.OK,
 		success: true,
-		message: "Password reset link send!",
-		data: null,
+		message: "Password reset link send to your email!",
+		data: {
+			status: 200,
+			message: "Password Reset Successfully",
+		},
 	})
 })
 

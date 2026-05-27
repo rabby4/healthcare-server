@@ -3,7 +3,7 @@ import prisma from "./prisma"
 import config from "../config"
 import * as bcrypt from "bcrypt"
 
-const seedSuperAdmin = async () => {
+export const seedSuperAdmin = async () => {
 	try {
 		const isExistSuperAdmin = await prisma.user.findFirst({
 			where: {
@@ -41,5 +41,4 @@ const seedSuperAdmin = async () => {
 		await prisma.$disconnect()
 	}
 }
-
 seedSuperAdmin()

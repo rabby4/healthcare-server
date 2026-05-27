@@ -92,6 +92,21 @@ const getMySchedules = async (
 						[options.sortBy]: options.sortOrder,
 				  }
 				: {},
+		include: {
+			doctor: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
+				},
+			},
+			schedule: {
+				select: {
+					startDateTime: true,
+					endDateTime: true,
+				},
+			},
+		},
 	})
 
 	const total: number = await prisma.doctorSchedule.count({
@@ -113,7 +128,7 @@ const getAllDoctorSchedule = async (
 	options: IPagination
 ) => {
 	const { limit, page, skip } = paginationHelpers.calculatePagination(options)
-	const { searchTerm, ...filterData } = filters
+	const { searchTerm, startDateTime, endDateTime, ...filterData } = filters
 	const andConditions = []
 
 	if (searchTerm) {
@@ -123,6 +138,25 @@ const getAllDoctorSchedule = async (
 					contains: searchTerm,
 					mode: "insensitive",
 				},
+			},
+		})
+	}
+
+	if (startDateTime && endDateTime) {
+		andConditions.push({
+			schedule: {
+				AND: [
+					{
+						startDateTime: {
+							gte: startDateTime,
+						},
+					},
+					{
+						endDateTime: {
+							lte: endDateTime,
+						},
+					},
+				],
 			},
 		})
 	}

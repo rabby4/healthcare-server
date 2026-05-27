@@ -25,6 +25,7 @@ const loginUser = async (payload: { email: string; password: string }) => {
 
 	const accessToken = jwtHelpers.generateToken(
 		{
+			id: userData.id,
 			email: userData.email,
 			role: userData.role,
 		},
@@ -69,6 +70,7 @@ const refreshToken = async (token: string) => {
 
 	const accessToken = jwtHelpers.generateToken(
 		{
+			id: userData.id,
 			email: userData.email,
 			role: userData.role,
 		},
@@ -107,10 +109,6 @@ const changePassword = async (user: any, payload: any) => {
 			needPasswordChange: false,
 		},
 	})
-
-	return {
-		message: "Password changed successfully!!!",
-	}
 }
 
 const forgotPassword = async (payload: { email: string }) => {
@@ -127,7 +125,7 @@ const forgotPassword = async (payload: { email: string }) => {
 		config.jwt.resetPassExpireIn as string
 	)
 	const resetPassLink =
-		config.resetPassURL + `?userId=${userData.id}&token=${resetPassToken}`
+		config.resetPassURL + `?id=${userData.id}&token=${resetPassToken}`
 
 	await emailSender(
 		userData.email,
@@ -138,7 +136,6 @@ const forgotPassword = async (payload: { email: string }) => {
 				<a href=${resetPassLink}>
 					<button>Reset Password</button>
 				</a>
-
 			</div>
 		`
 	)
@@ -148,22 +145,30 @@ const resetPassword = async (
 	token: string,
 	payload: { id: string; password: string }
 ) => {
-	await prisma.user.findUniqueOrThrow({
+	const userData = await prisma.user.findUniqueOrThrow({
 		where: {
 			id: payload.id,
 			status: UserStatus.ACTIVE,
 		},
 	})
-	const isValidToken = jwtHelpers.verifyToken(
-		token,
-		config.jwt.resetPassToken as Secret
-	)
 
-	if (!isValidToken) throw new ApiError(status.FORBIDDEN, "Forbidden access")
+	let decodedData
+	try {
+		decodedData = jwtHelpers.verifyToken(
+			token,
+			config.jwt.resetPassToken as Secret
+		)
+	} catch (error) {
+		throw new ApiError(status.FORBIDDEN, "Forbidden access")
+	}
+
+	// the reset token must belong to the user whose password is being reset
+	if (decodedData.email !== userData.email)
+		throw new ApiError(status.FORBIDDEN, "Forbidden access")
 
 	const hashedPassword = await bcrypt.hash(payload.password, 12)
 
-	const updatePassword = await prisma.user.update({
+	await prisma.user.update({
 		where: {
 			id: payload.id,
 			status: UserStatus.ACTIVE,
@@ -172,7 +177,6 @@ const resetPassword = async (
 			password: hashedPassword,
 		},
 	})
-	return updatePassword
 }
 
 export const authServices = {
