@@ -1,13 +1,15 @@
-import { Admin, Prisma, UserStatus } from "@prisma/client"
+import { Admin, Prisma, UserRole, UserStatus } from "@prisma/client"
 import { searchFields } from "./admin.constant"
 import { paginationHelpers } from "../../../helpers/paginationHelpers"
 import prisma from "../../../shared/prisma"
 import { IAdminFilterRequest } from "./admin.interface"
 import { IPagination } from "../../interfaces/pagination"
+import { IAuthUser } from "../../interfaces/common"
 
 const getAllAdmin = async (
 	params: IAdminFilterRequest,
-	options: IPagination
+	options: IPagination,
+	requester?: IAuthUser
 ) => {
 	const { searchTerm, ...filterData } = params
 	const { page, limit, skip } = paginationHelpers.calculatePagination(options)
@@ -38,6 +40,13 @@ const getAllAdmin = async (
 		isDeleted: false,
 	})
 
+	// Admins must never see the super admin; super admins see everyone.
+	if (requester?.role === UserRole.ADMIN) {
+		andCondition.push({
+			user: { role: { not: UserRole.SUPER_ADMIN } },
+		})
+	}
+
 	const whereCondition: Prisma.AdminWhereInput = { AND: andCondition }
 
 	const result = await prisma.admin.findMany({
@@ -50,6 +59,8 @@ const getAllAdmin = async (
 						[options.sortBy]: options.sortOrder,
 				  }
 				: { createdAt: "desc" },
+		// Expose the linked user's role so the client can badge / hide rows.
+		include: { user: { select: { role: true } } },
 	})
 
 	const total: number = await prisma.admin.count({

@@ -1,0 +1,16 @@
+{
+	"$schema": "https://openapi.vercel.sh/vercel.json",
+	"buildCommand": "npm run vercel-build",
+	"rewrites": [{ "source": "/(.*)", "destination": "/api" }],
+	"functions": {
+		"api/index.ts": {
+			"includeFiles": "node_modules/.prisma/client/**"
+		}
+	},
+	"crons": [
+		{
+			"path": "/api/cron/cancel-unpaid-appointments",
+			"schedule": "0 0 * * *"
+		}
+	]
+}

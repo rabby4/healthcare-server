@@ -11,4 +11,10 @@ router.get(
 	metaController.fetchDashboardMetaData
 )
 
+router.get(
+	"/appointment-trend",
+	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
+	metaController.getAppointmentTrend
+)
+
 export const metaRoutes = router

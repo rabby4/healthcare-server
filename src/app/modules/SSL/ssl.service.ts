@@ -14,7 +14,7 @@ const initPayment = async (paymentData: any) => {
 			success_url: config.ssl.success_url,
 			fail_url: config.ssl.fail_url,
 			cancel_url: config.ssl.cancel_url,
-			ipn_url: "http://localhost:3000/ipn",
+			ipn_url: `${config.backendBaseUrl}/payment/ipn`,
 			shipping_method: "N/A",
 			product_name: "Appointment.",
 			product_category: "Service",
@@ -38,10 +38,16 @@ const initPayment = async (paymentData: any) => {
 			ship_country: "Bangladesh",
 		}
 
+		// SSLCommerz expects a properly URL-encoded form body, not a raw object.
+		const form = new URLSearchParams()
+		Object.entries(data).forEach(([key, value]) =>
+			form.append(key, String(value))
+		)
+
 		const response = await axios({
 			method: "POST",
 			url: config.ssl.payment_api,
-			data,
+			data: form,
 			headers: {
 				"Content-Type": "application/x-www-form-urlencoded",
 			},

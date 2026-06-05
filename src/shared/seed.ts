@@ -37,8 +37,14 @@ export const seedSuperAdmin = async () => {
 		console.log(superAdminData)
 	} catch (error) {
 		console.error(error)
-	} finally {
-		await prisma.$disconnect()
 	}
+	// NOTE: no $disconnect here — this function shares the app-wide prisma
+	// client (src/shared/prisma.ts). Disconnecting it on a serverless cold
+	// start would kill the very connection the incoming request is using.
 }
-seedSuperAdmin()
+
+// Only auto-run (and disconnect afterwards) when executed directly via
+// `npm run seed` — importing this module must not have side effects.
+if (require.main === module) {
+	seedSuperAdmin().finally(() => prisma.$disconnect())
+}

@@ -4,11 +4,13 @@ import { adminFilterFields, paginationOptions } from "./admin.constant"
 import sendResponse from "../../../shared/sendResponse"
 import status from "http-status"
 import catchAsync from "../../../shared/catchAsync"
+import { Request } from "express"
+import { IAuthUser } from "../../interfaces/common"
 
-const getAllAdmin = catchAsync(async (req, res) => {
+const getAllAdmin = catchAsync(async (req: Request & { user?: IAuthUser }, res) => {
 	const filters = pick(req.query, adminFilterFields)
 	const options = pick(req.query, paginationOptions)
-	const result = await adminServices.getAllAdmin(filters, options)
+	const result = await adminServices.getAllAdmin(filters, options, req.user)
 	sendResponse(res, {
 		statusCode: status.OK,
 		success: true,

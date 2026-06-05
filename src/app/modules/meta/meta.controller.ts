@@ -18,6 +18,23 @@ const fetchDashboardMetaData = catchAsync(
 	}
 )
 
+const getAppointmentTrend = catchAsync(
+	async (req: Request & { user?: IAuthUser }, res: Response) => {
+		const user = req.user
+		const result = await metaService.getAppointmentTrend(
+			user as IAuthUser,
+			req.query.unit as string | undefined
+		)
+		sendResponse(res, {
+			statusCode: status.OK,
+			success: true,
+			message: "Appointment trend fetched successfully!",
+			data: result,
+		})
+	}
+)
+
 export const metaController = {
 	fetchDashboardMetaData,
+	getAppointmentTrend,
 }

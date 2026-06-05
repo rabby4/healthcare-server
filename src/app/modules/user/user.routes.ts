@@ -21,7 +21,8 @@ router.get(
 
 router.post(
 	"/create-admin",
-	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+	// Only a super admin can create admins; a regular admin must not.
+	auth(UserRole.SUPER_ADMIN),
 	fileUploader.upload.single("file"),
 	(req: Request, res: Response, next: NextFunction) => {
 		req.body = userValidation.createAdmin.parse(JSON.parse(req.body.data))

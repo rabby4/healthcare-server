@@ -10,7 +10,15 @@ const loginUser = catchAsync(async (req, res) => {
 
 	const { refreshToken } = result
 
-	res.cookie("refreshToken", refreshToken, { secure: false, httpOnly: true })
+	// In production the frontend and backend live on different domains, so the
+	// cookie must be SameSite=None + Secure or browsers will drop it. Locally
+	// (http) Secure cookies don't work, so fall back to Lax.
+	const isProd = process.env.NODE_ENV === "production"
+	res.cookie("refreshToken", refreshToken, {
+		httpOnly: true,
+		secure: isProd,
+		sameSite: isProd ? "none" : "lax",
+	})
 
 	sendResponse(res, {
 		statusCode: status.OK,

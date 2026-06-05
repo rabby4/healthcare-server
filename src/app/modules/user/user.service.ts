@@ -15,8 +15,20 @@ import { paginationHelpers } from "../../../helpers/paginationHelpers"
 import { IPagination } from "../../interfaces/pagination"
 import { userSearchableFields } from "./user.constant"
 import { IAuthUser } from "../../interfaces/common"
+import ApiError from "../../errors/ApiErrors"
+import status_http from "http-status"
 
 const createAdmin = async (req: Request): Promise<Admin> => {
+	// Defense in depth: even if the route guard is loosened, only a super admin
+	// may create admins.
+	const requester = (req as Request & { user?: IAuthUser }).user
+	if (requester && requester.role !== UserRole.SUPER_ADMIN) {
+		throw new ApiError(
+			status_http.FORBIDDEN,
+			"Only a super admin can create admins."
+		)
+	}
+
 	const file = req.file as IFile
 	if (file) {
 		const uploadedFile = await fileUploader.uploadToCloudinary(file)
@@ -170,11 +182,19 @@ const getAllUsers = async (params: any, options: IPagination) => {
 }
 
 const changeProfileStatus = async (id: string, status: UserRole) => {
-	await prisma.user.findUniqueOrThrow({
+	const targetUser = await prisma.user.findUniqueOrThrow({
 		where: {
 			id,
 		},
 	})
+
+	// A super admin account can never be blocked or deleted — by anyone.
+	if (targetUser.role === UserRole.SUPER_ADMIN) {
+		throw new ApiError(
+			status_http.FORBIDDEN,
+			"A super admin account cannot be blocked or deleted."
+		)
+	}
 
 	const updateStatus = await prisma.user.update({
 		where: {

@@ -34,7 +34,11 @@ const createPrescription = async (
 			doctorId: appointmentData.doctorId,
 			patientId: appointmentData.patientId,
 			instructions: payload.instructions as string,
-			followUpDate: payload.followUpDate || null || undefined,
+			// The client sends a date-only string ("YYYY-MM-DD"); Prisma's DateTime
+			// needs a full Date/ISO value, so coerce it (null when not provided).
+			followUpDate: payload.followUpDate
+				? new Date(payload.followUpDate as unknown as string)
+				: null,
 		},
 		include: {
 			patient: true,

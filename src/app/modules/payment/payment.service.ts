@@ -36,6 +36,17 @@ const validatePayment = async (payload: any) => {
 		throw new ApiError(status.BAD_REQUEST, "Invalid payment!")
 	}
 
+	// Idempotency: the success redirect AND the IPN can both fire for the same
+	// transaction — if it's already PAID, don't re-validate/re-charge.
+	if (payload.tran_id) {
+		const existing = await prisma.payment.findFirst({
+			where: { transactionId: payload.tran_id },
+		})
+		if (existing?.status === PaymentStatus.PAID) {
+			return { message: "Payment already confirmed" }
+		}
+	}
+
 	// confirm the transaction with SSLCommerz before trusting it
 	const response = await sslService.paymentValidation(payload)
 

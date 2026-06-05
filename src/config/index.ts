@@ -6,6 +6,9 @@ dotenv.config({ path: path.join(process.cwd(), ".env") })
 export default {
 	env: process.env.NODE_ENV,
 	port: process.env.PORT,
+	frontendUrl: process.env.FRONTEND_URL || "http://localhost:3001",
+	backendBaseUrl:
+		process.env.BACKEND_BASE_URL || "http://localhost:5000/api/v1",
 	jwt: {
 		accessToken: process.env.JWT_ACCESS_TOKEN,
 		accessTokenExpireIn: process.env.ACCESS_TOKEN_EXPIRE_IN,
@@ -14,6 +17,11 @@ export default {
 		resetPassToken: process.env.RESET_PASS_TOKEN,
 		resetPassExpireIn: process.env.RESET_PASS_EXPIRE_IN,
 	},
+	// Platform commission taken from each paid doctor fee (0.15 = 15%).
+	// Single source of truth — change it here (or via COMMISSION_RATE env) only.
+	commissionRate: process.env.COMMISSION_RATE
+		? Number(process.env.COMMISSION_RATE)
+		: 0.15,
 	superAdminEmail: process.env.SUPER_ADMIN_EMAIL,
 	superAdminPassword: process.env.SUPER_ADMIN_PASSWORD,
 	resetPassURL: process.env.RESET_PASS_URL,

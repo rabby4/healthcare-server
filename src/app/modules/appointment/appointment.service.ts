@@ -1,6 +1,8 @@
 import prisma from "../../../shared/prisma"
 import { IAuthUser } from "../../interfaces/common"
-import { v4 as uuidv4 } from "uuid"
+// Node's built-in UUID — the `uuid` npm package is ESM-only and crashes the
+// CommonJS build on Vercel's serverless runtime (ERR_REQUIRE_ESM).
+import { randomUUID } from "crypto"
 import { IPagination } from "../../interfaces/pagination"
 import { paginationHelpers } from "../../../helpers/paginationHelpers"
 import {
@@ -31,7 +33,7 @@ const createAppointment = async (user: IAuthUser, payload: any) => {
 		},
 	})
 
-	const videoCallingId = uuidv4()
+	const videoCallingId = randomUUID()
 
 	const result = await prisma.$transaction(async (tx) => {
 		const appointmentData = await prisma.appointment.create({

@@ -1,13 +1,21 @@
 import multer from "multer"
+import os from "os"
 import path from "path"
 import { v2 as cloudinary } from "cloudinary"
 import fs from "fs"
 import { ICloudinaryFile, IFile } from "../app/interfaces/file"
 import config from "../config"
 
+// On Vercel the filesystem is read-only except the OS temp dir, so uploads
+// are staged there before being pushed to Cloudinary (then deleted).
+const uploadDir = process.env.VERCEL
+	? os.tmpdir()
+	: path.join(process.cwd(), "uploads")
+
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
-		cb(null, path.join(process.cwd(), "uploads"))
+		fs.mkdirSync(uploadDir, { recursive: true })
+		cb(null, uploadDir)
 	},
 	filename: function (req, file, cb) {
 		cb(null, file.originalname)
