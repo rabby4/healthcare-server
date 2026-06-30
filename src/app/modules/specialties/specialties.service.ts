@@ -17,7 +17,19 @@ const createSpecialty = async (req: Request) => {
 }
 
 const getAllSpecialties = async () => {
-	const result = await prisma.specialties.findMany()
+	const result = await prisma.specialties.findMany({
+		include: {
+			// Number of (non-deleted) doctors registered under each specialty,
+			// exposed as `_count.doctorSpecialties` on every specialty.
+			_count: {
+				select: {
+					doctorSpecialties: {
+						where: { doctor: { isDeleted: false } },
+					},
+				},
+			},
+		},
+	})
 	return result
 }
 

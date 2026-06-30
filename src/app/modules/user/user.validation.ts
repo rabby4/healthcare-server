@@ -49,10 +49,9 @@ const createDoctor = z.object({
 		currentWorkingPlace: z.string({
 			error: "Current working place is required",
 		}),
-		designation: z.string({
-			error: "Designation is required",
-		}),
 	}),
+	// Optional list of specialty ids to link to the doctor on creation.
+	specialties: z.array(z.string()).optional(),
 })
 
 const createPatient = z.object({

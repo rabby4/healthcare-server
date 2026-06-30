@@ -72,6 +72,17 @@ const createDoctor = async (req: Request): Promise<Doctor> => {
 		role: UserRole.DOCTOR,
 	}
 
+	// Specialty ids to link, sent as a sibling of `doctor` (optional).
+	const specialtyIds: string[] = Array.isArray(req.body.specialties)
+		? req.body.specialties
+		: []
+
+	// `designation` is a legacy, non-null column we no longer collect in the UI;
+	// default it so creation succeeds without forcing the field.
+	if (req.body.doctor.designation == null) {
+		req.body.doctor.designation = ""
+	}
+
 	const result = await prisma.$transaction(async (transactionClient) => {
 		await transactionClient.user.create({
 			data: userData,
@@ -79,6 +90,14 @@ const createDoctor = async (req: Request): Promise<Doctor> => {
 		const createdDoctorData = await transactionClient.doctor.create({
 			data: req.body.doctor,
 		})
+		if (specialtyIds.length > 0) {
+			await transactionClient.doctorSpecialties.createMany({
+				data: specialtyIds.map((specialtiesId) => ({
+					doctorId: createdDoctorData.id,
+					specialtiesId,
+				})),
+			})
+		}
 		return createdDoctorData
 	})
 
